@@ -1,3 +1,3 @@
 output "global-ip" {
-  value = google_compute_global_address.https-lb-global-ip-tf
+  value = google_compute_global_address.lb-ip-tf
 }

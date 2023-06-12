@@ -8,8 +8,7 @@ resource "google_compute_network" "vpc-tf" {
 resource "google_compute_subnetwork" "subnet-tf" {
     name = "migration-subnet"
     network = google_compute_network.vpc-tf.id
-    ip_cidr_range = "10.0.0.0/16"
-    region = "asia-southeast1"
+    ip_cidr_range = "10.0.0.0/23"
 }
 
 resource "google_compute_router" "router-tf" {

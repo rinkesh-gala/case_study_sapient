@@ -1,3 +1,3 @@
-gcp_project = "value"
-gcp_region = "asia-southeast1"
-gcp_zone = "asia-southeast1-a"
+gcp_project = "project-1-2-3-4-385715"
+gcp_region = "us-central1"
+gcp_zone = "us-central1-a"

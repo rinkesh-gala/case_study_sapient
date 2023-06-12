@@ -6,36 +6,35 @@ resource "google_service_account" "sa-tf" {
 resource "google_project_iam_member" "sa-iam1-tf" {
   project = var.gcp_project
   role = "roles/compute.admin"
-  member = "serviceAccount:${google_service_account.bookshelf-vm-sa-tf.email}"
+  member = "serviceAccount:${google_service_account.sa-tf.email}"
 }
 
 resource "google_project_iam_member" "sa-iam2-tf" {
   project = var.gcp_project
   role = "roles/logging.bucketWriter"
-  member = "serviceAccount:${google_service_account.bookshelf-vm-sa-tf.email}"
+  member = "serviceAccount:${google_service_account.sa-tf.email}"
 }
 
 resource "google_project_iam_member" "sa-iam3-tf" {
   project = var.gcp_project
   role = "roles/monitoring.admin"
-  member = "serviceAccount:${google_service_account.bookshelf-vm-sa-tf.email}"
+  member = "serviceAccount:${google_service_account.sa-tf.email}"
 }
 
 resource "google_project_iam_member" "sa-iam4-tf" {
   project = var.gcp_project
   role = "roles/opsconfigmonitoring.resourceMetadata.writer"
-  member = "serviceAccount:${google_service_account.bookshelf-vm-sa-tf.email}"
+  member = "serviceAccount:${google_service_account.sa-tf.email}"
 }
 
 resource "google_project_iam_member" "sa-iam5-tf" {
   project = var.gcp_project
   role = "roles/monitoring.metricWriter"
-  member = "serviceAccount:${google_service_account.bookshelf-vm-sa-tf.email}"
+  member = "serviceAccount:${google_service_account.sa-tf.email}"
 }
 
 resource "google_compute_instance_template" "web-vm-template-tf" {
   #provider = google-beta
-  depends_on = [google_sourcerepo_repository.bookshelf-codebase-tf]
   name = "web-vm-template"
   machine_type = "f1-micro"
   tags = [ "allow-ssh" , "allow-http" , "allow-https" , "allow-iap"]
@@ -102,7 +101,7 @@ resource "google_compute_health_check" "hc-tf" {
 resource "google_compute_instance_group_manager" "mig-tf" {
   name = "web-vm-mig"
   base_instance_name = "web-vm"
-  zone = "asia-southeast1-a"
+  zone = "us-central1-a"
 
   version {
   name = "web-vm-v1"
@@ -130,7 +129,6 @@ resource "google_compute_instance_group_manager" "mig-tf" {
 
 resource "google_compute_autoscaler" "autoscaler-tf" {
   name = "web-vm-autoscaler"
-  zone = "asia-southeast1-a"
   target = google_compute_instance_group_manager.mig-tf.id
   autoscaling_policy {
     min_replicas = 1
@@ -143,15 +141,15 @@ resource "google_compute_autoscaler" "autoscaler-tf" {
    } 
 }
 
-resource "google_compute_global_address" "https-lb-global-ip-tf" {
+resource "google_compute_global_address" "lb-ip-tf" {
   name = "https-lb-global-ip"
 }
 
 resource "google_compute_managed_ssl_certificate" "https-ssl-cert-tf" {
-  depends_on = [google_compute_global_address.https-lb-global-ip-tf]
+  depends_on = [google_compute_global_address.lb-ip-tf]
   name = "https-ssl-cert"
   managed {
-    domains = ["${google_compute_global_address.https-lb-global-ip-tf.address}.nip.io"]
+    domains = ["${google_compute_global_address.lb-ip-tf.address}.nip.io"]
   }
 }
 
@@ -177,7 +175,7 @@ resource "google_compute_backend_service" "https-backend-service-tf" {
 }
 
 resource "google_compute_url_map" "https-url-map-tf" {
-  name = "https-url-map"
+  name = "external-https-lb"
   default_service = google_compute_backend_service.https-backend-service-tf.id
 }
 
@@ -193,7 +191,7 @@ resource "google_compute_global_forwarding_rule" "global-forwarding-rule-tf" {
   name = "global-forwarding-rule"
   target = google_compute_target_https_proxy.https-target-proxy-tf.id
   port_range = 443
-  ip_address = google_compute_global_address.https-lb-global-ip-tf.id
+  ip_address = google_compute_global_address.lb-ip-tf.id
   load_balancing_scheme = "EXTERNAL"
   ip_protocol = "TCP"
 }
