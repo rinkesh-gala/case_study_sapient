@@ -82,8 +82,9 @@ resource "google_compute_firewall" "fw-tf" {
     protocol = "tcp"
     ports = [22,80,443,8080]
   }
-  source_ranges = ["35.235.240.0/20", "35.191.0.0/16", "130.211.0.0/22", "209.85.152.0/22", "209.85.204.0/22", "169.254.169.254/32", "27.106.7.150/32"]
-  target_tags = ["allow-iap", "allow-ssh"]
+  #source_ranges = ["35.235.240.0/20", "35.191.0.0/16", "130.211.0.0/22", "209.85.152.0/22", "209.85.204.0/22", "169.254.169.254/32", "27.106.7.150/32"]
+  source_ranges = var.whitelist_ip
+  target_tags = ["allow-iap", "allow-ssh", "allow-http"]
 }
 
 resource "google_compute_health_check" "hc-tf" {

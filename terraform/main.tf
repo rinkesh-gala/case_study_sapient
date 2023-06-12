@@ -50,6 +50,7 @@ module "web_appvm" {
   gcp_project = var.gcp_project
   gcp_region = var.gcp_region
   gcp_zone = var.gcp_zone
+  whitelist_ip = var.whitelist_ip
 }
 
 /*
