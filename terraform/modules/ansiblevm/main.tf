@@ -44,7 +44,6 @@ resource "google_compute_instance" "ansible-vm-tf" {
   }
   
    boot_disk {
-    #device_name = "ansible-vm-boot-disk"
      initialize_params {
       type = "pd-ssd"
       image = "ubuntu-os-cloud/ubuntu-2204-lts"
@@ -59,7 +58,7 @@ resource "google_compute_instance" "ansible-vm-tf" {
   scheduling {
     preemptible = true
     automatic_restart = false
-    provisioning_model = "SPOT"  
+    provisioning_model = "SPOT"  # as this a POC I am using SPOT VM to save cost, in prod we should avoid using SPOT VM
   }
 
    shielded_instance_config {

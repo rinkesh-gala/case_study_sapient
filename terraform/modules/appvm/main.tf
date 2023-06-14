@@ -34,12 +34,10 @@ resource "google_project_iam_member" "sa-iam5-tf" {
 }
 
 resource "google_compute_instance_template" "web-vm-template-tf" {
-  #provider = google-beta
   name = "web-vm-template"
   machine_type = "n1-standard-2"
   tags = [ "allow-ssh" , "allow-http" , "allow-https" , "allow-iap"]
-  #metadata_startup_script = templatefile("${path.module}/startup-script.sh", { "REPONAME" = "${google_sourcerepo_repository.bookshelf-codebase-tf.url}"})
-
+  
   network_interface {
     network = var.vpc_config.id
     subnetwork = var.subnet_config.id
@@ -58,7 +56,7 @@ resource "google_compute_instance_template" "web-vm-template-tf" {
   scheduling {
     preemptible = true
     automatic_restart = false
-    provisioning_model = "SPOT"  
+    provisioning_model = "SPOT"  # as this a POC I am using SPOT VM to save cost, in prod we should avoid using SPOT VM
   }
 
   shielded_instance_config {
@@ -82,7 +80,6 @@ resource "google_compute_firewall" "fw-tf" {
     protocol = "tcp"
     ports = [22,80,443,8080]
   }
-  #source_ranges = ["35.235.240.0/20", "35.191.0.0/16", "130.211.0.0/22", "209.85.152.0/22", "209.85.204.0/22", "169.254.169.254/32", "27.106.7.150/32"]
   source_ranges = var.whitelist_ip
   target_tags = ["allow-iap", "allow-ssh", "allow-http"]
 }
@@ -114,14 +111,6 @@ resource "google_compute_region_instance_group_manager" "mig-tf" {
   initial_delay_sec = 400
   }
 
-  /*update_policy {
-  minimal_action = "REPLACE"
-  type = "PROACTIVE"
-  replacement_method = "SUBSTITUTE"
-  max_surge_fixed = 0
-  max_unavailable_fixed = 1
-  }*/
-
   named_port {
   name = "http-app"
   port = 8080
@@ -136,7 +125,6 @@ resource "google_compute_region_autoscaler" "autoscaler-tf" {
     max_replicas = 4
     cooldown_period = 200
       cpu_utilization {
-        #predictive_method = "OPTIMIZE_AVAILABILITY"
         target = 0.6
       }
    } 
@@ -164,14 +152,13 @@ resource "google_compute_backend_service" "https-backend-service-tf" {
   name = "https-backend-service"
   health_checks = [google_compute_health_check.hc-tf.id]
   load_balancing_scheme = "EXTERNAL"
-  protocol = "HTTPS"
+  protocol = "HTTP"
   port_name = "http-app"
-  #custom_request_headers   = ["X-Client-Geo-Location: {client_region_subdivision}, {client_city}"]
-  #locality_lb_policy = "ROUND_ROBIN"
   backend {
     group = google_compute_region_instance_group_manager.mig-tf.instance_group
     balancing_mode = "UTILIZATION"
-    capacity_scaler = 1.0
+    capacity_scaler = 0.7
+    max_utilization = 0.7
   }
 }
 
