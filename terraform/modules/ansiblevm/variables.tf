@@ -24,7 +24,7 @@ variable "gcp_zone" {
     description = "default deployment gcp zone"
 }
 
-variable "whitelist_ip" {
+/*variable "whitelist_ip" {
   type = list(string)
   description = "list of ip which needs to be whitelisted"
-}
+}*/

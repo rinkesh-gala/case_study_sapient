@@ -53,10 +53,12 @@ module "web_appvm" {
   whitelist_ip = var.whitelist_ip
 }
 
-/*
-module "bookshelf_vm_template" {
-  source = "./modules/apptemplate"
-  depends_on = [module.bookshelf_network]
-  bookshelf_vpc_config = module.bookshelf_network.bookshelf-vpc-tf-out
-  bookshelf_subnet_config = module.bookshelf_network.bookshelf-app-subnet-tf-out
-}*/
+module "ansiblevm" {
+  source = "./modules/ansiblevm"
+  depends_on = [module.web_network]
+  vpc_config = module.web_network.vpc-tf-out
+  subnet_config = module.web_network.subnet-tf-out
+  gcp_project = var.gcp_project
+  gcp_region = var.gcp_region
+  gcp_zone = var.gcp_zone
+}

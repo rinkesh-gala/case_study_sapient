@@ -36,7 +36,7 @@ resource "google_project_iam_member" "sa-iam5-tf" {
 resource "google_compute_instance_template" "web-vm-template-tf" {
   #provider = google-beta
   name = "web-vm-template"
-  machine_type = "f1-micro"
+  machine_type = "n1-standard-2"
   tags = [ "allow-ssh" , "allow-http" , "allow-https" , "allow-iap"]
   #metadata_startup_script = templatefile("${path.module}/startup-script.sh", { "REPONAME" = "${google_sourcerepo_repository.bookshelf-codebase-tf.url}"})
 
