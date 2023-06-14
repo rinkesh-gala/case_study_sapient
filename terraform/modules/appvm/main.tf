@@ -99,10 +99,10 @@ resource "google_compute_health_check" "hc-tf" {
   }
 }
 
-resource "google_compute_region_instance_group_manager" "mig-tf" { # google_compute_region_instance_group_manager
+resource "google_compute_region_instance_group_manager" "mig-tf" { 
   name = "web-vm-mig"
   base_instance_name = "web-vm"
-  distribution_policy_zones = ["us-central1-a","us-central-b"]
+  distribution_policy_zones = ["us-central1-a","us-central1-b"]
 
   version {
   name = "web-vm-v1"
@@ -114,13 +114,13 @@ resource "google_compute_region_instance_group_manager" "mig-tf" { # google_comp
   initial_delay_sec = 400
   }
 
-  update_policy {
+  /*update_policy {
   minimal_action = "REPLACE"
   type = "PROACTIVE"
   replacement_method = "SUBSTITUTE"
-  max_surge_fixed = 1
+  max_surge_fixed = 0
   max_unavailable_fixed = 1
-  }
+  }*/
 
   named_port {
   name = "http-app"
@@ -128,7 +128,7 @@ resource "google_compute_region_instance_group_manager" "mig-tf" { # google_comp
   }
 }
 
-resource "google_compute_autoscaler" "autoscaler-tf" {
+resource "google_compute_region_autoscaler" "autoscaler-tf" {
   name = "web-vm-autoscaler"
   target = google_compute_region_instance_group_manager.mig-tf.id
   autoscaling_policy {
