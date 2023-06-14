@@ -13,16 +13,10 @@
       copy: 
         src: index.html
         dest: /var/www/html/index.html
- #       owner: root
-  #      group: root
-   #     mode: 0644
 
     - name: Change apache config file 
-      lineinfile:
-        path: /etc/apache2/ports.conf
-        regexp: '^Listen'
-        line: Listen 8080    
-      register: portinfo
+      roles:
+        - app_config_change
 
     - name: restart the service
       service:
