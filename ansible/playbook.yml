@@ -15,8 +15,8 @@
         dest: /var/www/html/index.html
 
     - name: Change apache config file 
-      roles:
-        - app_config_change
+      include_role:
+        name: app_config_change
 
     - name: restart the service
       service:
