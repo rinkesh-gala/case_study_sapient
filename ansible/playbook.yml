@@ -10,19 +10,13 @@
         update_cache: yes
 
     - name: copy html file
-      copy: 
-        src: index.html
-        dest: /var/www/html/index.html
+      include_role:
+        name: copy_code
 
     - name: Change apache config file 
       include_role:
         name: app_config_change
 
-    - name: restart the service
-      service:
-        name: apache2
-        state: restarted
-      when: portinfo.changed 
 
 
 
